@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:meals/Screens/meal_details.dart';
 import 'package:meals/models/meal.dart';
 import 'package:meals/widgets/meal_item.dart';
 
-class MealsScreen extends StatelessWidget {
+class MealsScreen extends ConsumerStatefulWidget {
   const MealsScreen({
     super.key,
     this.title,
@@ -13,7 +14,30 @@ class MealsScreen extends StatelessWidget {
   final String? title;
   final List<Meal> meals;
 
-  selectmeal(Meal meal, BuildContext context) {
+  @override
+  ConsumerState<MealsScreen> createState() => _MealsScreenState();
+}
+
+class _MealsScreenState extends ConsumerState<MealsScreen> with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  void selectMeal(Meal meal) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -27,48 +51,61 @@ class MealsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget content = Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text('Nothing dey here',
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyLarge!
-                  .copyWith(color: Theme.of(context).colorScheme.onSurface)),
-          const SizedBox(
-            height: 20,
-          ),
-          Text(
-            'Try something else',
-            style: Theme.of(context)
-                .textTheme
-                .bodyLarge!
-                .copyWith(color: Theme.of(context).colorScheme.onSurface),
-          ),
-        ],
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 500),
+        transitionBuilder: (child, animation) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+        child: widget.meals.isEmpty
+            ? Column(
+                key: const ValueKey('empty'),
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 20),
+                  Text(
+                    'You have no favorites',
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyLarge!
+                        .copyWith(color: Theme.of(context).colorScheme.onSurface),
+                  ),
+                ],
+              )
+            : ListView.builder(
+                key: const ValueKey('list'),
+                itemCount: widget.meals.length,
+                itemBuilder: (context, index) {
+                  return SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(1, 0),
+                      end: Offset.zero,
+                    ).animate(
+                      CurvedAnimation(
+                        parent: _animationController,
+                        curve: Curves.easeOut,
+                      ),
+                    ),
+                    child: MealItem(
+                      meal: widget.meals[index],
+                      selectMeal: (meal) {
+                        selectMeal(meal);
+                      },
+                    ),
+                  );
+                },
+              ),
       ),
     );
 
-    if (meals.isNotEmpty) {
-      content = ListView.builder(
-        itemBuilder: (context, index) => MealItem(
-          meal: meals[index],
-          selectMeal: (meal) {
-            selectmeal(meal, context);
-          },
-        ),
-        itemCount: meals.length,
-      );
-    }
-
-    if (title == null) {
+    if (widget.title == null) {
       return content;
     }
 
     return Scaffold(
-        appBar: AppBar(
-          title: Text(title!),
-        ),
-        body: content);
+      appBar: AppBar(
+        title: Text(widget.title!),
+      ),
+      body: content,
+    );
   }
 }

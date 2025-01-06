@@ -52,15 +52,6 @@ class App extends ConsumerWidget {
       availableLocales: const [
         Locale('en', 'US'),
       ],
-      devices: [
-        Devices.macOS.macBookPro,
-        Devices.linux.laptop,
-        Devices.android.samsungGalaxyA50,
-        Devices.android.samsungGalaxyS20,
-        Devices.ios.iPhone13ProMax,
-        Devices.ios.iPhoneSE,
-        Devices.windows.laptop,
-      ],
       tools: const [
         DeviceSection(
           model: true,
@@ -69,10 +60,20 @@ class App extends ConsumerWidget {
           virtualKeyboard: false,
         )
       ],
+      // Set a custom list of devices to display in Device Preview
+      devices: [
+        Devices.ios.iPhone13ProMax,
+        Devices.macOS.macBookPro,
+        Devices.linux.laptop,
+        Devices.android.samsungGalaxyA50,
+        Devices.android.samsungGalaxyS20,
+        Devices.ios.iPhoneSE,
+        Devices.ios.iPhone13Mini,
+        Devices.ios.iPad,
+        Devices.windows.laptop,
+      ],
       builder: (context) => MaterialApp(
           useInheritedMediaQuery: true,
-          locale: DevicePreview.locale(context),
-          builder: DevicePreview.appBuilder,
           debugShowCheckedModeBanner: false,
           theme: theme,
           darkTheme: darkTheme,
