@@ -37,7 +37,7 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
   }
 
   Future<void> _setScreen(String identifier) async {
-    Navigator.pop(context); // Close the drawer
+    Navigator.pop(context); 
     if (identifier == 'filters') {
       await Navigator.of(context).push<Map<Filter, bool>>(
         MaterialPageRoute(
